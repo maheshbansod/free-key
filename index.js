@@ -7,11 +7,19 @@ const rotateBtn = /** @type {HTMLButtonElement} */ (document.getElementById('rot
 const deleteBtn = /** @type {HTMLButtonElement} */ (document.getElementById('delete-btn'));
 const candleSizeInput = /** @type {HTMLInputElement} */ (document.getElementById('candle-size-input'));
 
+const mapSizeWidthInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-w'));
+const mapSizeHeightInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-h'));
+
 const onSelectionEnabledElements = [rotateBtn, candleSizeInput, deleteBtn];
 
+function getCanvasSize() {
+    const { width, height} = gameCanvas.getBoundingClientRect();
+    return Math.min(width, height);
+}
 // const {width, height} = document.documentElement.getBoundingClientRect();
-const width = window.innerWidth;
-const height = window.innerHeight;
+const canvasSize = getCanvasSize();
+const width = canvasSize;
+const height = canvasSize;
 
 /** @type {RectObject|null} */
 let selectedObject = null;
@@ -21,12 +29,29 @@ console.log(`Setting canvas size ${width}, ${height}`);
 gameCanvas.width = width;
 gameCanvas.height = height;
 
-const BLOCK_SIZE = 100;
+gameCanvas.style.width = `${width}px`;
+gameCanvas.style.height = `${height}px`;
+
+const grid = {
+    w: 6,
+    h: 6,
+};
+const blockSize = canvasSize / grid.w;
 
 /** @type {Candle[]} */
 const candles = [];
 
-const key = new Key(width/2, height/2, BLOCK_SIZE * 2, 'x');
+const key = new Key(width/2, height/2, blockSize * 2, 'x');
+
+mapSizeWidthInput.value = String(grid.w);
+mapSizeHeightInput.value = String(grid.h);
+
+mapSizeHeightInput.addEventListener('change', (e) => {
+    grid.h = Number(mapSizeHeightInput.value);
+})
+mapSizeWidthInput.addEventListener('change', e => {
+    grid.w = Number(mapSizeWidthInput.value);
+})
 
 function unselect() {
     selectedObject = null;
@@ -44,7 +69,7 @@ function selectObject(object) {
     onSelectionEnabledElements.forEach(elem => {
         elem.classList.remove('hidden');
     });
-    candleSizeInput.value = String(selectedObject.length);
+    candleSizeInput.value = String(Math.floor(selectedObject.length / blockSize));
 }
 
 function rotateSelectedObject() {
@@ -56,7 +81,7 @@ function rotateSelectedObject() {
 function changeCandleSize() {
     if (selectedObject) {
         // candle selected
-        selectedObject.length = Number(candleSizeInput.value || BLOCK_SIZE);
+        selectedObject.length = (Number(candleSizeInput.value) || 1) * blockSize;
     }
 }
 
@@ -70,34 +95,55 @@ function deleteSelectedObject() {
     }
 }
 
+/**
+ * 
+ * @param {{x: number, y: number}} position
+ */
+function getGridPosition({x, y}) {
+    return {
+        x: Math.floor(x/blockSize) * blockSize,
+        y: Math.floor(y/blockSize) * blockSize
+    }
+}
+/**
+ * @type {{
+ *  isDown: boolean;
+ *  position: {x: number, y: number};
+ *  dragStartSelectedState: {
+ *      position: {x: number, y: number},
+ *      offsetWithSelected: {x: number, y: number}
+ *  }|null
+ * }}
+ */
+const mouseState = {
+    isDown: false,
+    position: {x: 0, y: 0},
+    dragStartSelectedState: null
+};
+
 function registerEditEventHandlers() {
-    /**
-     * @type {{
-     *  isDown: boolean;
-     *  lastOffsetWithSelected: {x: number, y: number}|null
-     * }}
-     */
-    const mouseState = {
-        isDown: false,
-        lastOffsetWithSelected: null
-    };
     /**
      * 
      * @param {MouseEvent} e 
      */
     const onMouseDown = (e) => {
         const {offsetX: x, offsetY: y} = e;
+        mouseState.position.x = x;
+        mouseState.position.y = y;
         mouseState.isDown = true;
         const touchedCandle = candles.find(candle => candle.isAt(x, y));
         if (touchedCandle) {
             selectObject(touchedCandle);
             
-            mouseState.lastOffsetWithSelected = {x: x - touchedCandle.x, y: y - touchedCandle.y};
+            mouseState.dragStartSelectedState = {
+                offsetWithSelected: {x: x - touchedCandle.x, y: y - touchedCandle.y},
+                position: {x, y}
+            }
             
             return;
         } else if (!selectedObject) {
             // make new candle
-            const newCandle = findPossibleCandleAt(x, y, candles, BLOCK_SIZE);
+            const newCandle = findPossibleCandleAt(x, y, candles, blockSize);
             if (!newCandle) {
                 throw new Error('no place to make a candle');
             }
@@ -112,6 +158,23 @@ function registerEditEventHandlers() {
      */
     const onMouseUp = (e) => {
         mouseState.isDown = false;
+        const {offsetX: x, offsetY: y} = e;
+        mouseState.position.x = x;
+        mouseState.position.y = y;
+        if (selectedObject && mouseState.dragStartSelectedState) {
+            const myCandle = selectedObject;
+            if (candles.filter(candle => candle !== myCandle).some(candle => candle.intersectsWith(myCandle))) {
+                // revert
+                const {x, y} = getGridPosition(mouseState.dragStartSelectedState.position);
+                selectedObject.x = x;
+                selectedObject.y = y;
+            } else {
+                const x = Math.floor(selectedObject.x / blockSize) * blockSize;
+                const y = Math.floor(selectedObject.y / blockSize) * blockSize;
+                selectedObject.x = x;
+                selectedObject.y = y;
+            }
+        }
     }
 
     /**
@@ -120,12 +183,14 @@ function registerEditEventHandlers() {
      */
     const onMouseMove = (e) => {
         const {offsetX: x, offsetY: y} = e;
+        mouseState.position.x = x;
+        mouseState.position.y = y;
         if (mouseState.isDown) {
             // drag
 
-            if (selectedObject && mouseState.lastOffsetWithSelected) {
-                selectedObject.x = x - mouseState.lastOffsetWithSelected.x;
-                selectedObject.y = y - mouseState.lastOffsetWithSelected.y;
+            if (selectedObject && mouseState.dragStartSelectedState) {
+                selectedObject.x = x - mouseState.dragStartSelectedState.offsetWithSelected.x;
+                selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
             }
         }
     }
@@ -138,6 +203,15 @@ function registerEditEventHandlers() {
 function draw() {
     gameCtx.fillStyle = 'white';
     gameCtx.fillRect(0, 0, width, height);
+
+    if (selectedObject) {
+
+        if (mouseState.isDown && mouseState.dragStartSelectedState) {
+            let {x, y} = getGridPosition(selectedObject); // todo: make this based on mouseState.position
+            gameCtx.fillStyle = 'lightgreen';
+            new Candle(x, y, selectedObject.length, selectedObject.type).draw(gameCtx);
+        }
+    }
     // draw candles
     gameCtx.fillStyle = 'black';
     candles.forEach(candle => {
@@ -146,11 +220,32 @@ function draw() {
         }
         candle.draw(gameCtx);
     });
+
+    // draw grid
+    gameCtx.strokeStyle = 'lightgrey';
+    for (let i = 1; i < grid.w ; i ++) {
+        const x = i * blockSize;
+        const y1 = 0;
+        const y2 = height;
+        gameCtx.beginPath();
+        gameCtx.moveTo(x, y1);
+        gameCtx.lineTo(x, y2);
+        gameCtx.stroke();
+    }
+    for (let i = 1; i < grid.h ; i ++) {
+        const y = i * blockSize;
+        const x1 = 0;
+        const x2 = height;
+        gameCtx.beginPath();
+        gameCtx.moveTo(x1, y);
+        gameCtx.lineTo(x2, y);
+        gameCtx.stroke();
+    }
+
     if (selectedObject) {
         gameCtx.fillStyle = 'blue';
         selectedObject.draw(gameCtx);
     }
-
 
     requestAnimationFrame(draw);
 }

@@ -28,6 +28,12 @@ class Candle extends RectObject {
  * @param {Candle[]} candles
  */
 function findPossibleCandleAt(x, y, candles, len) {
+    const laneX = Math.floor(x / blockSize);
+    const laneY = Math.floor(y / blockSize);
+
+    x = laneX * blockSize;
+    y = laneY * blockSize;
+
     const candle1 = new Candle(x, y, len, 'x');
     if (!candles.some(candle => candle.intersectsWith(candle1))) {
         return candle1;

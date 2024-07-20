@@ -6,7 +6,7 @@
 
 class RectObject {
 
-    WIDTH = 50;
+    WIDTH = blockSize;
     /**
      * 
      * @param {number} x 
