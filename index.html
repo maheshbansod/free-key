@@ -1,0 +1,32 @@
+<body>
+    <div>
+        <button type="button" class="hidden" id="delete-btn" onclick="deleteSelectedObject()">Delete</button>
+        <button type="button" class="hidden" id="rotate-btn" onclick="rotateSelectedObject()">Rotate</button>
+        <input type="number" class="hidden" id="candle-size-input" onchange="changeCandleSize()" min="100" max="1000"
+            step="100" />
+        <button type="button" onclick="exportCurrentGame()">Export</button>
+    </div>
+    <canvas id="game"></canvas>
+    <script src="./rect-object.js"></script>
+    <script src="./candle.js"></script>
+    <script src="./key.js"></script>
+    <script src="./index.js"></script>
+</body>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    html,
+    body,
+    #game {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
