@@ -23,6 +23,8 @@ const height = canvasSize;
 
 /** @type {RectObject|null} */
 let selectedObject = null;
+/** @type {RectObject|null} */
+let previewObject = null;
 
 console.log(`Setting canvas size ${width}, ${height}`);
 
@@ -163,16 +165,18 @@ function registerEditEventHandlers() {
         mouseState.position.y = y;
         if (selectedObject && mouseState.dragStartSelectedState) {
             const myCandle = selectedObject;
-            if (candles.filter(candle => candle !== myCandle).some(candle => candle.intersectsWith(myCandle))) {
+            if (!previewObject) {
                 // revert
-                const {x, y} = getGridPosition(mouseState.dragStartSelectedState.position);
+                const {x, y} = getGridPosition({
+                    x: mouseState.dragStartSelectedState.position.x - mouseState.dragStartSelectedState.offsetWithSelected.x,
+                    y: mouseState.dragStartSelectedState.position.y - mouseState.dragStartSelectedState.offsetWithSelected.y
+                });
                 selectedObject.x = x;
                 selectedObject.y = y;
             } else {
-                const x = Math.floor(selectedObject.x / blockSize) * blockSize;
-                const y = Math.floor(selectedObject.y / blockSize) * blockSize;
-                selectedObject.x = x;
-                selectedObject.y = y;
+                selectedObject.x = previewObject.x;
+                selectedObject.y = previewObject.y;
+                selectedObject = previewObject = null;
             }
         }
     }
@@ -191,6 +195,20 @@ function registerEditEventHandlers() {
             if (selectedObject && mouseState.dragStartSelectedState) {
                 selectedObject.x = x - mouseState.dragStartSelectedState.offsetWithSelected.x;
                 selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
+
+                const {x: spx, y: spy} = getGridPosition(mouseState.position);
+                const previewPreviewObject = new Candle(spx, spy, selectedObject.length, selectedObject.type);
+                if (!candles.filter(candle => candle !== selectedObject).some(candle => {
+                    return candle.intersectsWith(previewPreviewObject);
+                })) {
+                    if (!previewObject) {
+                        previewObject = previewPreviewObject;
+                    }
+                    previewObject.x = spx;
+                    previewObject.y = spy;
+                } else {
+                    previewObject = null;
+                }
             }
         }
     }
@@ -204,13 +222,9 @@ function draw() {
     gameCtx.fillStyle = 'white';
     gameCtx.fillRect(0, 0, width, height);
 
-    if (selectedObject) {
-
-        if (mouseState.isDown && mouseState.dragStartSelectedState) {
-            let {x, y} = getGridPosition(selectedObject); // todo: make this based on mouseState.position
-            gameCtx.fillStyle = 'lightgreen';
-            new Candle(x, y, selectedObject.length, selectedObject.type).draw(gameCtx);
-        }
+    if (previewObject && mouseState.isDown) {
+        gameCtx.fillStyle = 'lightgreen';
+        previewObject.draw(gameCtx);
     }
     // draw candles
     gameCtx.fillStyle = 'black';

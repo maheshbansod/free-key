@@ -42,24 +42,25 @@ class RectObject {
      */
     intersectsWith(rect) {
         const corners = [
-            {x: this.x, y: this.y},
+            {x: this.x + 1, y: this.y + 1},
             {
-                x: this.x + this.rectWidth,
-                y: this.y
+                x: this.x + this.rectWidth - 1,
+                y: this.y + 1
             },
             {
-                x: this.x + this.rectWidth,
-                y: this.y + this.rectHeight
+                x: this.x + this.rectWidth - 1,
+                y: this.y + this.rectHeight - 1
             },
             {
-                x: this.x,
-                y: this.y + this.rectHeight,
+                x: this.x + 1,
+                y: this.y + this.rectHeight - 1,
             }
         ];
 
         if (corners.some(corner => rect.isAt(corner.x, corner.y))) {
             return true;
         }
+
         return false;
     }
 
