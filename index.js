@@ -468,3 +468,13 @@ function clearReset() {
         tryLoadFromUrl();
     }
 }
+
+const aboutTheGame = `
+<h5>Description</h5>
+This puzzle game's main objective is to get the key out of a maze 
+by moving around the walls where the key and walls can only move in specific directions.
+
+<h5>Credits</h5>
+It's created with pure JS by <a href="https://github.com/maheshbansod">Light</a> a.k.a. <a href="https://maheshbansod.com">Mahesh Bansod</a>.<br/>
+Source code for this is probably available on github. <br />
+`
