@@ -337,9 +337,9 @@ function registerEditEventHandlers() {
         }
     }
 
-    gameCanvas.addEventListener('mousedown', onMouseDown); 
-    gameCanvas.addEventListener('mouseup', onMouseUp);
-    gameCanvas.addEventListener('mousemove', onMouseMove);
+    gameCanvas.addEventListener('pointerdown', onMouseDown); 
+    gameCanvas.addEventListener('pointerup', onMouseUp);
+    gameCanvas.addEventListener('pointermove', onMouseMove);
 }
 
 function draw() {
@@ -393,8 +393,9 @@ function draw() {
     gameCtx.beginPath();
     const text = "WIN";
     gameCtx.font = `${fontSize}px Arial`;
+    gameCtx.textBaseline = 'middle';
     const textSize = gameCtx.measureText(text);
-    gameCtx.fillText("WIN", width - (blockSize + textSize.width) / 2, key.y + (textSize.emHeightAscent + blockSize) / 2);
+    gameCtx.fillText("WIN", width - (blockSize + textSize.width) / 2, key.y + (fontSize + blockSize) / 2);
     gameCtx.fill();
 
     requestAnimationFrame(draw);
