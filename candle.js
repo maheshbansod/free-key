@@ -25,9 +25,11 @@ class Candle extends RectObject {
  * 
  * @param {number} x 
  * @param {number} y 
+ * @param {number} len
  * @param {Candle[]} candles
+ * @param {Key} key
  */
-function findPossibleCandleAt(x, y, candles, len) {
+function findPossibleCandleAt(x, y, len, candles, key) {
     const laneX = Math.floor(x / blockSize);
     const laneY = Math.floor(y / blockSize);
 
@@ -35,6 +37,10 @@ function findPossibleCandleAt(x, y, candles, len) {
     y = laneY * blockSize;
 
     const candle1 = new Candle(x, y, len, 'x');
+    if (candle1.intersectsWith(key)
+    || candle1.intersectsWithRect(width - blockSize, key.y, blockSize, blockSize)) {
+        return;
+    }
     if (!candles.some(candle => candle.intersectsWith(candle1))) {
         return candle1;
     }

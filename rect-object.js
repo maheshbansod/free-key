@@ -50,9 +50,8 @@ class RectObject {
      * @param {RectObject} rect 
      */
     intersectsWith(rect) {
-        const corners = this.#makeCorners(this.x, this.y, this.rectWidth, this.rectHeight);
 
-        return this.intersectsWithCorners(rect, corners);
+        return this.intersectsWithRect(rect.x, rect.y, rect.rectWidth, rect.rectHeight);
     }
 
     /**

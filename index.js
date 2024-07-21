@@ -169,7 +169,7 @@ function registerEditEventHandlers() {
                 return;
             }
             // make new candle
-            const newCandle = findPossibleCandleAt(x, y, candles(), blockSize);
+            const newCandle = findPossibleCandleAt(x, y, blockSize, candles(), key);
             if (!newCandle) {
                 throw new Error('no place to make a candle');
             }
@@ -191,12 +191,11 @@ function registerEditEventHandlers() {
             return;
         }
         if (selectedObject && mouseState.dragStartSelectedState) {
-            const myCandle = selectedObject;
             if (!previewObject) {
                 // revert
                 const {x, y} = getGridPosition({
-                    x: mouseState.dragStartSelectedState.position.x - mouseState.dragStartSelectedState.offsetWithSelected.x,
-                    y: mouseState.dragStartSelectedState.position.y - mouseState.dragStartSelectedState.offsetWithSelected.y
+                    x: mouseState.dragStartSelectedState.position.x,
+                    y: mouseState.dragStartSelectedState.position.y
                 });
                 selectedObject.x = x;
                 selectedObject.y = y;
@@ -246,8 +245,13 @@ function registerEditEventHandlers() {
 
                 const previewPreviewObject = new Candle(spx, spy, selectedObject.length, selectedObject.type);
                 if (!objects.filter(obj => obj !== selectedObject).some(obj => {
+                    if (selectedObject instanceof Key) {
+                        if (obj.intersectsWithRect(width - blockSize, key.y, blockSize, blockSize)) {
+                            return true;
+                        }
+                    }
                     return obj.intersectsWith(previewPreviewObject);
-                })) {
+                }) && !previewPreviewObject.intersectsWithRect(width - blockSize, key.y, blockSize, blockSize)) {
                     if (!previewObject) {
                         previewObject = previewPreviewObject;
                     }
@@ -309,6 +313,16 @@ function draw() {
     }
 
     key.draw(gameCtx);
+
+    // exit gate
+    gameCtx.fillStyle = 'black';
+    const fontSize = 30;
+    gameCtx.beginPath();
+    const text = "WIN";
+    gameCtx.font = `${fontSize}px Arial`;
+    const textSize = gameCtx.measureText(text);
+    gameCtx.fillText("WIN", width - (blockSize + textSize.width) / 2, key.y + (textSize.emHeightAscent + blockSize) / 2);
+    gameCtx.fill();
 
     requestAnimationFrame(draw);
 }
