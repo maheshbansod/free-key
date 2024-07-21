@@ -317,7 +317,10 @@ function registerEditEventHandlers() {
                     selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
                 }
                 if (gameState.isPlayMode) {
-                    if (selectedObject.doesLegalMoveIntersect(oldSelectedObjectVals, objects.filter(obj => obj !== selectedObject))) {
+                    if (selectedObject.x < 0 || selectedObject.y < 0 
+                        || selectedObject.x + selectedObject.rectWidth > width
+                        || selectedObject.y + selectedObject.rectHeight > height
+                        || selectedObject.doesLegalMoveIntersect(oldSelectedObjectVals, objects.filter(obj => obj !== selectedObject))) {
                         selectedObject.x = oldSelectedObjectVals.x;
                         selectedObject.y = oldSelectedObjectVals.y;
                     }
@@ -362,9 +365,6 @@ function draw() {
     }
     // draw all objects
     objects.forEach(obj => {
-        if (obj === selectedObject) {
-            return;
-        }
         if (obj.type === 'x') {
             gameCtx.fillStyle = 'red';
         } else {
@@ -394,7 +394,7 @@ function draw() {
         gameCtx.stroke();
     }
 
-    if (selectedObject) {
+    if (gameState.isEditMode && selectedObject) {
         gameCtx.fillStyle = 'blue';
         selectedObject.draw(gameCtx);
     }
@@ -502,6 +502,7 @@ function clearReset() {
     } else {
         // reset
         tryLoadFromUrl();
+        unselect();
     }
 }
 
