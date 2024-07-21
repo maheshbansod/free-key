@@ -76,7 +76,8 @@ class RectObject {
      * @param {number} h 
      */
     intersectsWithRect(x, y, w, h) {
-        const right = x + w;
+        const p = 10;
+        const right = x + w ;
         const bottom = y + h;
         const mRight = this.x + this.rectWidth;
         const mBottom = this.y + this.rectHeight;
@@ -89,10 +90,11 @@ class RectObject {
      * @param {RectObject[]} objects
      */
     doesLegalMoveIntersect(movedFrom, objects) {
-        const x = Math.min(movedFrom.x, this.x);
-        const y = Math.min(movedFrom.y, this.y);
-        const w = Math.abs(this.x - movedFrom.x) + this.rectWidth;
-        const h = Math.abs(this.y - movedFrom.y) + this.rectHeight;
+        const p = 20;
+        const x = Math.min(movedFrom.x, this.x) + p;
+        const y = Math.min(movedFrom.y, this.y) + p;
+        const w = Math.abs(this.x - movedFrom.x) + this.rectWidth - p;
+        const h = Math.abs(this.y - movedFrom.y) + this.rectHeight - p;
 
         return objects.some(obj => obj.intersectsWithRect(x, y, w, h));
     }

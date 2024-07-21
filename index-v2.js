@@ -263,22 +263,29 @@ function registerEditEventHandlers() {
         const {offsetX: x, offsetY: y} = e;
         mouseState.position.x = x;
         mouseState.position.y = y;
-        if (!gameState.isEditMode) {
-            return;
-        }
         if (selectedObject && mouseState.dragStartSelectedState) {
-            if (!previewObject) {
-                // revert
+            if (gameState.isEditMode) {
+                if (!previewObject) {
+                    // revert
+                    const {x, y} = getGridPosition({
+                        x: mouseState.dragStartSelectedState.position.x,
+                        y: mouseState.dragStartSelectedState.position.y
+                    });
+                    selectedObject.x = x;
+                    selectedObject.y = y;
+                } else {
+                    selectedObject.x = previewObject.x;
+                    selectedObject.y = previewObject.y;
+                    selectedObject = previewObject = null;
+                }
+            } else {
+                // play mode
                 const {x, y} = getGridPosition({
-                    x: mouseState.dragStartSelectedState.position.x,
-                    y: mouseState.dragStartSelectedState.position.y
+                    x: selectedObject.x + blockSize / 2,
+                    y: selectedObject.y + blockSize / 2
                 });
                 selectedObject.x = x;
                 selectedObject.y = y;
-            } else {
-                selectedObject.x = previewObject.x;
-                selectedObject.y = previewObject.y;
-                selectedObject = previewObject = null;
             }
         }
     }
