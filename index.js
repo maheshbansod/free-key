@@ -48,7 +48,7 @@ const grid = {
 };
 const blockSize = canvasSize / grid.w;
 
-const key = new Key(width/2, height/2);
+const key = new Key(0, height/2 - 1);
 
 /** @type {RectObject[]} */
 const objects = [key];
