@@ -40,10 +40,14 @@ const grid = {
 };
 const blockSize = canvasSize / grid.w;
 
-/** @type {Candle[]} */
-const candles = [];
+const key = new Key(width/2, height/2);
 
-const key = new Key(width/2, height/2, blockSize * 2, 'x');
+/** @type {RectObject[]} */
+const objects = [key];
+
+const candles = () => {
+    return objects.filter(obj => obj instanceof Candle);
+}
 
 mapSizeWidthInput.value = String(grid.w);
 mapSizeHeightInput.value = String(grid.h);
@@ -88,10 +92,10 @@ function changeCandleSize() {
 }
 
 function deleteSelectedObject() {
-    if (selectedObject) {
-        const index = candles.findIndex(candle => candle === selectedObject);
+    if (selectedObject instanceof Candle) {
+        const index = objects.findIndex(candle => candle === selectedObject);
         if (index >= 0) {
-            candles.splice(index, 1);
+            objects.splice(index, 1);
             unselect();
         }
     }
@@ -133,23 +137,23 @@ function registerEditEventHandlers() {
         mouseState.position.x = x;
         mouseState.position.y = y;
         mouseState.isDown = true;
-        const touchedCandle = candles.find(candle => candle.isAt(x, y));
-        if (touchedCandle) {
-            selectObject(touchedCandle);
+        const touchedObject = objects.find(obj => obj.isAt(x, y));
+        if (touchedObject) {
+            selectObject(touchedObject);
             
             mouseState.dragStartSelectedState = {
-                offsetWithSelected: {x: x - touchedCandle.x, y: y - touchedCandle.y},
+                offsetWithSelected: {x: x - touchedObject.x, y: y - touchedObject.y},
                 position: {x, y}
             }
             
             return;
         } else if (!selectedObject) {
             // make new candle
-            const newCandle = findPossibleCandleAt(x, y, candles, blockSize);
+            const newCandle = findPossibleCandleAt(x, y, candles(), blockSize);
             if (!newCandle) {
                 throw new Error('no place to make a candle');
             }
-            candles.push(newCandle);
+            objects.push(newCandle);
         }
         unselect();
     }
@@ -198,8 +202,8 @@ function registerEditEventHandlers() {
 
                 const {x: spx, y: spy} = getGridPosition(mouseState.position);
                 const previewPreviewObject = new Candle(spx, spy, selectedObject.length, selectedObject.type);
-                if (!candles.filter(candle => candle !== selectedObject).some(candle => {
-                    return candle.intersectsWith(previewPreviewObject);
+                if (!objects.filter(obj => obj !== selectedObject).some(obj => {
+                    return obj.intersectsWith(previewPreviewObject);
                 })) {
                     if (!previewObject) {
                         previewObject = previewPreviewObject;
@@ -226,13 +230,13 @@ function draw() {
         gameCtx.fillStyle = 'lightgreen';
         previewObject.draw(gameCtx);
     }
-    // draw candles
+    // draw all objects
     gameCtx.fillStyle = 'black';
-    candles.forEach(candle => {
-        if (candle === selectedObject) {
+    objects.forEach(obj => {
+        if (obj === selectedObject) {
             return;
         }
-        candle.draw(gameCtx);
+        obj.draw(gameCtx);
     });
 
     // draw grid
@@ -260,6 +264,8 @@ function draw() {
         gameCtx.fillStyle = 'blue';
         selectedObject.draw(gameCtx);
     }
+
+    key.draw(gameCtx);
 
     requestAnimationFrame(draw);
 }
