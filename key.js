@@ -9,6 +9,10 @@ class Key extends RectObject {
     constructor(x, y) {
         super(x, y, 2 * blockSize, 'x');
     }
+
+    copy() {
+        return new Key(this.x, this.y);
+    }
     /**
      * 
      * @param {CanvasRenderingContext2D} ctx 

@@ -34,12 +34,13 @@
 
 <body>
     <div class="container">
-        <div>
+        <div id="edit-tools-container">
             <button type="button" class="hidden" id="delete-btn" onclick="deleteSelectedObject()">Delete</button>
             <button type="button" class="hidden" id="rotate-btn" onclick="rotateSelectedObject()">Rotate</button>
             <input type="number" class="hidden" id="candle-size-input" onchange="changeCandleSize()" min="1" max="10"
                 step="1" />
             <button type="button" onclick="exportCurrentGame()">Export</button>
+            <button type="button" onclick="playCurrentMap()">Play</button>
             w: <input type="number" id="map-size-w" />
             h: <input type="number" id="map-size-h" />
         </div>

@@ -2,6 +2,15 @@
 
 /**
  * @typedef {'x'|'y'} RectType
+ * 
+ * @typedef {{
+ * c: string,// constructor name
+ * x: number,
+ * y: number,
+ * l: number,
+ * t: RectType, // type
+ * e?: Record<string, any>, // extra
+ * }} MinifiedRect
  */
 
 class RectObject {
@@ -41,27 +50,70 @@ class RectObject {
      * @param {RectObject} rect 
      */
     intersectsWith(rect) {
-        const corners = [
-            {x: this.x + 1, y: this.y + 1},
-            {
-                x: this.x + this.rectWidth - 1,
-                y: this.y + 1
-            },
-            {
-                x: this.x + this.rectWidth - 1,
-                y: this.y + this.rectHeight - 1
-            },
-            {
-                x: this.x + 1,
-                y: this.y + this.rectHeight - 1,
-            }
-        ];
+        const corners = this.#makeCorners(this.x, this.y, this.rectWidth, this.rectHeight);
 
+        return this.intersectsWithCorners(rect, corners);
+    }
+
+    /**
+     * 
+     * @param {RectObject} rect 
+     * @param {{x: number, y: number}[]} corners 
+     * @returns 
+     */
+    intersectsWithCorners(rect, corners) {
         if (corners.some(corner => rect.isAt(corner.x, corner.y))) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * 
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} w 
+     * @param {number} h 
+     */
+    intersectsWithRect(x, y, w, h) {
+        const right = x + w;
+        const bottom = y + h;
+        const mRight = this.x + this.rectWidth;
+        const mBottom = this.y + this.rectHeight;
+        return this.x < right && mRight > x && this.y < bottom && mBottom > y;
+    }
+
+    /**
+     * 
+     * @param {{x: number, y: number}} movedFrom 
+     * @param {RectObject[]} objects
+     */
+    doesLegalMoveIntersect(movedFrom, objects) {
+        const x = Math.min(movedFrom.x, this.x);
+        const y = Math.min(movedFrom.y, this.y);
+        const w = Math.abs(this.x - movedFrom.x) + this.rectWidth;
+        const h = Math.abs(this.y - movedFrom.y) + this.rectHeight;
+
+        return objects.some(obj => obj.intersectsWithRect(x, y, w, h));
+    }
+
+    #makeCorners(x, y, w, h) {
+        return [
+            {x: x + 1, y: y + 1},
+            {
+                x: x + w - 1,
+                y: y + 1
+            },
+            {
+                x: x + w - 1,
+                y: y + h - 1
+            },
+            {
+                x: x + 1,
+                y: y + h - 1,
+            }
+        ];
     }
 
     get rectWidth() {
@@ -78,6 +130,39 @@ class RectObject {
         } else {
             return this.length;
         }
+    }
+
+    /**
+     * Divides everything by width
+     */
+    minified() {
+        const d = this.WIDTH;
+
+        const x = this.x / d;
+        const y = this.y / d;
+        const length = this.length / d;
+
+        /**
+         * @type {MinifiedRect}
+         */
+        const minified = {
+            c: this.constructor.name,
+            x,
+            y,
+            l: length,
+            t: this.type
+        }
+
+        const keysAlreadyTaken = [ "WIDTH", "x", "y", "length", "type" ];
+        const extraKeys = Object.keys(this).filter(k => !keysAlreadyTaken.includes(k));
+        if (extraKeys.length > 0) {
+            const extraKeys = {   
+            };
+            extraKeys.forEach(k => extraKeys[k] = this[k]);
+            minified.e = extraKeys;
+        }
+
+        return minified;
     }
 
     /**

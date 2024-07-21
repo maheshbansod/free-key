@@ -10,6 +10,14 @@ const candleSizeInput = /** @type {HTMLInputElement} */ (document.getElementById
 const mapSizeWidthInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-w'));
 const mapSizeHeightInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-h'));
 
+const editToolsContainer = /** @type {HTMLDivElement} */ (document.getElementById('edit-tools-container'));
+
+/** @typedef {'play' | 'edit'} GameMode */
+/** @type {GameMode} */
+let gameMode = 'edit';
+const isEditMode = () => gameMode === 'edit';
+const isPlayMode = () => gameMode === 'play';
+
 const onSelectionEnabledElements = [rotateBtn, candleSizeInput, deleteBtn];
 
 function getCanvasSize() {
@@ -104,12 +112,21 @@ function deleteSelectedObject() {
 /**
  * 
  * @param {{x: number, y: number}} position
+ * @param {{type: RectType, value: number}|null} resetType
  */
-function getGridPosition({x, y}) {
-    return {
-        x: Math.floor(x/blockSize) * blockSize,
-        y: Math.floor(y/blockSize) * blockSize
+function getGridPosition(position, resetType=null) {
+    const {x, y} = position;
+    const normalize = (x) => Math.floor(x/blockSize) * blockSize;
+    if (!resetType) {
+        return {
+            x: normalize(x),
+            y: normalize(y)
+        }
     }
+    return {
+        ...position,
+        [resetType.type]: normalize(resetType.value),
+    };
 }
 /**
  * @type {{
@@ -148,6 +165,9 @@ function registerEditEventHandlers() {
             
             return;
         } else if (!selectedObject) {
+            if (!isEditMode()) {
+                return;
+            }
             // make new candle
             const newCandle = findPossibleCandleAt(x, y, candles(), blockSize);
             if (!newCandle) {
@@ -167,6 +187,9 @@ function registerEditEventHandlers() {
         const {offsetX: x, offsetY: y} = e;
         mouseState.position.x = x;
         mouseState.position.y = y;
+        if (!isEditMode()) {
+            return;
+        }
         if (selectedObject && mouseState.dragStartSelectedState) {
             const myCandle = selectedObject;
             if (!previewObject) {
@@ -197,10 +220,30 @@ function registerEditEventHandlers() {
             // drag
 
             if (selectedObject && mouseState.dragStartSelectedState) {
-                selectedObject.x = x - mouseState.dragStartSelectedState.offsetWithSelected.x;
-                selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
+                
+                const typeToKeepFixed = isEditMode() ? undefined : selectedObject.type === 'x' ? 'y' : 'x';
+                const {x: spx, y: spy} = getGridPosition(mouseState.position, !typeToKeepFixed ? null : {type: typeToKeepFixed, value: selectedObject[typeToKeepFixed]});
+                const oldSelectedObjectVals = {
+                    x: selectedObject.x,
+                    y: selectedObject.y,
+                };
 
-                const {x: spx, y: spy} = getGridPosition(mouseState.position);
+                if (typeToKeepFixed !== 'x') {
+                    selectedObject.x = x - mouseState.dragStartSelectedState.offsetWithSelected.x;
+                }
+                if (typeToKeepFixed !== 'y') {
+                    selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
+                }
+                if (isPlayMode()) {
+                    if (selectedObject.doesLegalMoveIntersect(oldSelectedObjectVals, objects.filter(obj => obj !== selectedObject))) {
+                        selectedObject.x = oldSelectedObjectVals.x;
+                        selectedObject.y = oldSelectedObjectVals.y;
+                    }
+                }
+                if (!isEditMode()) {
+                    return;
+                }
+
                 const previewPreviewObject = new Candle(spx, spy, selectedObject.length, selectedObject.type);
                 if (!objects.filter(obj => obj !== selectedObject).some(obj => {
                     return obj.intersectsWith(previewPreviewObject);
@@ -273,3 +316,30 @@ function draw() {
 registerEditEventHandlers();
 
 requestAnimationFrame(draw);
+
+function playCurrentMap() {
+    // what would i need to play it?
+    // i guess i'll normalize all objects and store them
+    // and exit point
+
+    // convert all this in a query param and attach to the URL
+
+    const minified = objects.map(obj => obj.minified());
+    
+    const gameData = JSON.stringify({
+        objs: minified
+    });
+
+    const queryParam = encodeURIComponent(btoa(gameData));
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", queryParam);
+    history.pushState(null, '', url);
+
+    startPlayMode();
+}
+
+function startPlayMode() {
+    gameMode = 'play';
+    editToolsContainer.classList.add('hidden');
+    selectedObject = null;
+}
