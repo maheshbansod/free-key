@@ -458,3 +458,13 @@ function togglePlayEdit() {
         switchToEditor();
     }
 }
+function clearReset() {
+    if (gameState.isEditMode) {
+        // clear
+        key = new Key(0,height/2 - 2);
+        objects = [key];
+    } else {
+        // reset
+        tryLoadFromUrl();
+    }
+}
