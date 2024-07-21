@@ -97,24 +97,6 @@ class RectObject {
         return objects.some(obj => obj.intersectsWithRect(x, y, w, h));
     }
 
-    #makeCorners(x, y, w, h) {
-        return [
-            {x: x + 1, y: y + 1},
-            {
-                x: x + w - 1,
-                y: y + 1
-            },
-            {
-                x: x + w - 1,
-                y: y + h - 1
-            },
-            {
-                x: x + 1,
-                y: y + h - 1,
-            }
-        ];
-    }
-
     get rectWidth() {
         if (this.type === 'x') {
             return this.length;
@@ -162,6 +144,29 @@ class RectObject {
         }
 
         return minified;
+    }
+
+    /**
+     * 
+     * @param {MinifiedRect} minified 
+     * @param {(Record<string, typeof RectObject>)} derivedClasses
+     */
+    static fromMinified(minified, derivedClasses) {
+        const d = blockSize;
+
+        const cons = derivedClasses[minified.c];
+        /** @type {RectObject} */
+        const instance = new cons(minified.x, minified.y, minified.l, minified.t);
+        instance.x = minified.x * d;
+        instance.y = minified.y * d;
+        instance.length = minified.l * d;
+        instance.type = minified.t;
+        if (minified.e) {
+            const extraKeys = minified.e;
+            const keys = Object.keys(extraKeys);
+            keys.forEach(key => instance[key] = extraKeys[key])
+        }
+        return instance;
     }
 
     /**

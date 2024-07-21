@@ -72,10 +72,59 @@ const grid = {
 };
 const blockSize = canvasSize / grid.w;
 
-const key = new Key(0, height/2 - 1);
+let key = new Key(0, height/2 - 1);
 
 /** @type {RectObject[]} */
-const objects = [key];
+let objects = [key];
+
+const derivedClasses = {
+    RectObject, Key, Candle
+};
+
+tryLoadFromUrl();
+
+function tryLoadFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameData = urlParams.get('g');
+    if (gameData) {
+        try {
+            console.log('loading')
+            console.log(gameData);
+            loadGame(decodeURIComponent(gameData));
+        } catch(e) {
+            console.error('Attempted to load game from URL but failed.');
+            console.error(e);
+        }
+    }
+}
+
+/** @typedef {{objs: MinifiedRect[]}} SerializedGameState */
+
+/**
+ * 
+ * @param {string} b64 
+ */
+function loadGame(b64) {
+    /**
+     * @type {SerializedGameState}
+     */
+    const data = JSON.parse(atob(b64));
+
+    const loadedObjects = [];
+
+    for (const obj of data.objs) {
+        const object = RectObject.fromMinified(obj, derivedClasses);
+        loadedObjects.push(object);
+    }
+
+    const newKey = loadedObjects.find(object => object instanceof Key);
+    if (newKey) {
+        key = newKey;
+    } else {
+        loadedObjects.push(key);
+    }
+    objects = loadedObjects;
+}
 
 const candles = () => {
     return objects.filter(obj => obj instanceof Candle);
@@ -375,10 +424,15 @@ function switchToEditor() {
 
 function playCurrentMap() {
     const minified = objects.map(obj => obj.minified());
-    
-    const gameData = JSON.stringify({
+
+    /**
+     * @type {SerializedGameState}
+     */
+    const serializable = {
         objs: minified
-    });
+    };
+    
+    const gameData = JSON.stringify(serializable);
 
     const queryParam = encodeURIComponent(btoa(gameData));
     const url = new URL(window.location.href);
