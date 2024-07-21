@@ -6,12 +6,14 @@ class Candle extends RectObject {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawRect(ctx) {
-        const knobspace = 5;
+        const knobspace = 15;
         const knobwidth = 15;
+
+        const padding = 10;
 
         ctx.beginPath();
         const rectLength = this.length - 2 * knobspace;
-        ctx.rect(knobspace, 0, rectLength, this.WIDTH);
+        ctx.rect(knobspace, padding, rectLength, this.WIDTH - padding * 2);
         const knobstartx = 0;
         const knobstarty = this.WIDTH/2 - knobwidth/2;
         ctx.rect(knobstartx, knobstarty, knobspace, knobwidth);

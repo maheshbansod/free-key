@@ -354,10 +354,14 @@ function draw() {
         previewObject.draw(gameCtx);
     }
     // draw all objects
-    gameCtx.fillStyle = 'black';
     objects.forEach(obj => {
         if (obj === selectedObject) {
             return;
+        }
+        if (obj.type === 'x') {
+            gameCtx.fillStyle = 'red';
+        } else {
+            gameCtx.fillStyle = 'blue';
         }
         obj.draw(gameCtx);
     });
