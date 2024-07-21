@@ -1,5 +1,5 @@
 <head>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         * {
             margin: 0;
@@ -24,25 +24,70 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
+        }
+
+        #main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+        }
+
+        #menu-items {
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 50px;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px double white;
+            padding: 1rem;
+        }
+
+        #menu-items button {
+            padding: 0.5rem 2rem;
+            text-transform: full-width;
+        }
+
+        #tools {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div id="edit-tools-container">
-            <button type="button" class="hidden" id="delete-btn" onclick="deleteSelectedObject()">Delete</button>
-            <button type="button" class="hidden" id="rotate-btn" onclick="rotateSelectedObject()">Rotate</button>
-            <input type="number" class="hidden" id="candle-size-input" onchange="changeCandleSize()" min="1" max="10"
-                step="1" />
-            <button type="button" onclick="exportCurrentGame()">Export</button>
-            <button type="button" onclick="playCurrentMap()">Play</button>
-            w: <input type="number" id="map-size-w" />
-            h: <input type="number" id="map-size-h" />
+        <div id="tools">
+            <span id="current-state">Free the key!</span>
+            <div id="edit-tools-container" class="hidden">
+                <button type="button" class="hidden" id="delete-btn" onclick="deleteSelectedObject()">Delete</button>
+                <button type="button" class="hidden" id="rotate-btn" onclick="rotateSelectedObject()">Rotate</button>
+                <input type="number" class="hidden" id="candle-size-input" onchange="changeCandleSize()" min="1"
+                    max="10" step="1" />
+            </div>
+            <div id="common-tools-container" class="hidden">
+                <button type="button" onclick="exportCurrentGame()">Export</button>
+                <button type="button" onclick="togglePlayEdit()">toggle play / edit</button>
+            </div>
+        </div>
+        <div id="main-menu">
+            <div id="menu-items">
+                <button type="button" onclick="playCurrentMap()">Play</button>
+                <button type="button" onclick="switchToEditor()">Editor</button>
+                <button type="button" onclick="document.write('ok bye')">Exit</button>
+            </div>
         </div>
         <hr />
         <canvas id="game"></canvas>

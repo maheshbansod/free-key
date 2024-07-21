@@ -7,16 +7,38 @@ const rotateBtn = /** @type {HTMLButtonElement} */ (document.getElementById('rot
 const deleteBtn = /** @type {HTMLButtonElement} */ (document.getElementById('delete-btn'));
 const candleSizeInput = /** @type {HTMLInputElement} */ (document.getElementById('candle-size-input'));
 
-const mapSizeWidthInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-w'));
-const mapSizeHeightInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-h'));
+// const mapSizeWidthInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-w'));
+// const mapSizeHeightInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-h'));
 
 const editToolsContainer = /** @type {HTMLDivElement} */ (document.getElementById('edit-tools-container'));
+const commonToolsContainer = /** @type {HTMLDivElement} */ (document.getElementById('common-tools-container'));
+const toolsWrapper = /** @type {HTMLDivElement} */ (document.getElementById('tools'));
+const mainMenu = /** @type {HTMLDivElement} */ (document.getElementById("main-menu"));
+const currentState = /** @type {HTMLSpanElement} */ (document.getElementById('current-state'));
 
+
+class GameState {
+    /** @type {GameMode} */
+    #mode = 'edit';
+    get mode() {
+        return this.#mode;
+    }
+    set mode(mode) {
+        currentState.innerText = mode;
+        this.#mode = mode;
+    }
+
+    get isEditMode() {
+        return this.#mode === 'edit';
+    }
+    get isPlayMode() {
+        return this.#mode === 'play';
+    }
+}
 /** @typedef {'play' | 'edit'} GameMode */
-/** @type {GameMode} */
-let gameMode = 'edit';
-const isEditMode = () => gameMode === 'edit';
-const isPlayMode = () => gameMode === 'play';
+
+const gameState = new GameState();
+
 
 const onSelectionEnabledElements = [rotateBtn, candleSizeInput, deleteBtn];
 
@@ -42,6 +64,8 @@ gameCanvas.height = height;
 gameCanvas.style.width = `${width}px`;
 gameCanvas.style.height = `${height}px`;
 
+toolsWrapper.style.width = `${width}px`;
+
 const grid = {
     w: 6,
     h: 6,
@@ -57,15 +81,15 @@ const candles = () => {
     return objects.filter(obj => obj instanceof Candle);
 }
 
-mapSizeWidthInput.value = String(grid.w);
-mapSizeHeightInput.value = String(grid.h);
+// mapSizeWidthInput.value = String(grid.w);
+// mapSizeHeightInput.value = String(grid.h);
 
-mapSizeHeightInput.addEventListener('change', (e) => {
-    grid.h = Number(mapSizeHeightInput.value);
-})
-mapSizeWidthInput.addEventListener('change', e => {
-    grid.w = Number(mapSizeWidthInput.value);
-})
+// mapSizeHeightInput.addEventListener('change', (e) => {
+//     grid.h = Number(mapSizeHeightInput.value);
+// })
+// mapSizeWidthInput.addEventListener('change', e => {
+//     grid.w = Number(mapSizeWidthInput.value);
+// })
 
 function unselect() {
     selectedObject = null;
@@ -165,7 +189,7 @@ function registerEditEventHandlers() {
             
             return;
         } else if (!selectedObject) {
-            if (!isEditMode()) {
+            if (!gameState.isEditMode) {
                 return;
             }
             // make new candle
@@ -187,7 +211,7 @@ function registerEditEventHandlers() {
         const {offsetX: x, offsetY: y} = e;
         mouseState.position.x = x;
         mouseState.position.y = y;
-        if (!isEditMode()) {
+        if (!gameState.isEditMode) {
             return;
         }
         if (selectedObject && mouseState.dragStartSelectedState) {
@@ -220,7 +244,7 @@ function registerEditEventHandlers() {
 
             if (selectedObject && mouseState.dragStartSelectedState) {
                 
-                const typeToKeepFixed = isEditMode() ? undefined : selectedObject.type === 'x' ? 'y' : 'x';
+                const typeToKeepFixed = gameState.isEditMode ? undefined : selectedObject.type === 'x' ? 'y' : 'x';
                 const {x: spx, y: spy} = getGridPosition(mouseState.position, !typeToKeepFixed ? null : {type: typeToKeepFixed, value: selectedObject[typeToKeepFixed]});
                 const oldSelectedObjectVals = {
                     x: selectedObject.x,
@@ -233,13 +257,13 @@ function registerEditEventHandlers() {
                 if (typeToKeepFixed !== 'y') {
                     selectedObject.y = y - mouseState.dragStartSelectedState.offsetWithSelected.y;
                 }
-                if (isPlayMode()) {
+                if (gameState.isPlayMode) {
                     if (selectedObject.doesLegalMoveIntersect(oldSelectedObjectVals, objects.filter(obj => obj !== selectedObject))) {
                         selectedObject.x = oldSelectedObjectVals.x;
                         selectedObject.y = oldSelectedObjectVals.y;
                     }
                 }
-                if (!isEditMode()) {
+                if (!gameState.isEditMode) {
                     return;
                 }
 
@@ -331,13 +355,25 @@ registerEditEventHandlers();
 
 requestAnimationFrame(draw);
 
+function closeMenu() {
+    mainMenu.classList.add('hidden');
+    commonToolsContainer.classList.remove('hidden');
+}
+
+function switchToEditor() {
+    gameState.mode = 'edit';
+    const url = new URL(window.location.href);
+    url.searchParams.delete("g");
+    history.pushState(null, '', url);
+
+    editToolsContainer.classList.remove('hidden');
+    if (!mainMenu.classList.contains('hidden')) {
+        closeMenu();
+    }
+    selectedObject = null;
+}
+
 function playCurrentMap() {
-    // what would i need to play it?
-    // i guess i'll normalize all objects and store them
-    // and exit point
-
-    // convert all this in a query param and attach to the URL
-
     const minified = objects.map(obj => obj.minified());
     
     const gameData = JSON.stringify({
@@ -353,7 +389,18 @@ function playCurrentMap() {
 }
 
 function startPlayMode() {
-    gameMode = 'play';
+    gameState.mode = 'play';
+    if (!mainMenu.classList.contains('hidden')) {
+        closeMenu();
+    }
     editToolsContainer.classList.add('hidden');
     selectedObject = null;
+}
+
+function togglePlayEdit() {
+    if (gameState.isEditMode) {
+        playCurrentMap();
+    } else {
+        switchToEditor();
+    }
 }
