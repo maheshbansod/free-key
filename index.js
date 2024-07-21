@@ -16,6 +16,8 @@ const toolsWrapper = /** @type {HTMLDivElement} */ (document.getElementById('too
 const mainMenu = /** @type {HTMLDivElement} */ (document.getElementById("main-menu"));
 const currentState = /** @type {HTMLSpanElement} */ (document.getElementById('current-state'));
 
+let isGameLoaded = false;
+
 
 class GameState {
     /** @type {GameMode} */
@@ -124,6 +126,7 @@ function loadGame(b64) {
         loadedObjects.push(key);
     }
     objects = loadedObjects;
+    isGameLoaded = true;
 }
 
 const candles = () => {
@@ -423,7 +426,8 @@ function switchToEditor() {
     selectedObject = null;
 }
 
-function playCurrentMap() {
+function serializeGame() {
+
     const minified = objects.map(obj => obj.minified());
 
     /**
@@ -436,11 +440,31 @@ function playCurrentMap() {
     const gameData = JSON.stringify(serializable);
 
     const queryParam = encodeURIComponent(btoa(gameData));
+
+    return queryParam;
+}
+
+function playCurrentMap() {
+    const queryParam = serializeGame();
     const url = new URL(window.location.href);
     url.searchParams.set("g", queryParam);
     history.pushState(null, '', url);
 
     startPlayMode();
+}
+
+function playTodaysGame() {
+    if (!isGameLoaded) {
+        const queryParam = decodeURIComponent("eyJvYmpzIjpbeyJjIjoiS2V5IiwieCI6MiwieSI6MiwibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4IjoxLCJ5IjowLCJsIjozLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjAsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MywieSI6MCwibCI6MiwidCI6InkifSx7ImMiOiJDYW5kbGUiLCJ4Ijo0LCJ5IjowLCJsIjoyLCJ0IjoieCJ9LHsiYyI6IkNhbmRsZSIsIngiOjQsInkiOjEsImwiOjMsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MywieSI6NCwibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4Ijo1LCJ5Ijo0LCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjIsInkiOjMsImwiOjIsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MCwieSI6MywibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4IjowLCJ5Ijo0LCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjEsInkiOjUsImwiOjIsInQiOiJ4In1dfQ%253D%253D");
+
+        
+        const url = new URL(window.location.href);
+        url.searchParams.set("g", queryParam);
+        history.pushState(null, '', url);
+
+        tryLoadFromUrl();
+    }
+    playCurrentMap();
 }
 
 function startPlayMode() {
@@ -468,6 +492,16 @@ function clearReset() {
         // reset
         tryLoadFromUrl();
     }
+}
+
+function copyGameLink() {
+    const queryParam = serializeGame();
+
+    
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", queryParam);
+    console.log("Copied game to clipboard: ",url.href);
+    copyTextToClipboard(url.href);
 }
 
 const aboutTheGame = `
