@@ -18,7 +18,7 @@ class Key extends RectObject {
      * @param {CanvasRenderingContext2D} ctx 
      */
     drawRect(ctx) {
-        const keyWidth = 15;
+        const keyWidth = blockSize / 10;
         const keyArcR = blockSize / 3;
         const center = blockSize / 2;
         const previousLineWidth = ctx.lineWidth;
@@ -34,7 +34,7 @@ class Key extends RectObject {
         ctx.beginPath();
         ctx.fillStyle = 'yellow';
         const keyRidges = 3;
-        const ridgesHeight = 40;
+        const ridgesHeight = blockSize / 4;
         ctx.moveTo(blockSize * 2, center);
         ctx.lineTo(blockSize * 2, center);
         for (let i = 0; i< keyRidges; i ++) {
