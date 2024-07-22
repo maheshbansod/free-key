@@ -26,7 +26,7 @@ class GameState {
         return this.#mode;
     }
     set mode(mode) {
-        currentState.innerText = mode;
+        currentState.innerText = mode + 'ing';
         this.#mode = mode;
     }
 
