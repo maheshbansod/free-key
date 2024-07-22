@@ -356,22 +356,8 @@ function registerEditEventHandlers() {
 }
 
 function draw() {
-    gameCtx.fillStyle = 'white';
+    gameCtx.fillStyle = 'black';
     gameCtx.fillRect(0, 0, width, height);
-
-    if (previewObject && mouseState.isDown) {
-        gameCtx.fillStyle = 'lightgreen';
-        previewObject.draw(gameCtx);
-    }
-    // draw all objects
-    objects.forEach(obj => {
-        if (obj.type === 'x') {
-            gameCtx.fillStyle = 'limegreen';
-        } else {
-            gameCtx.fillStyle = 'red';
-        }
-        obj.draw(gameCtx);
-    });
 
     // draw grid
     gameCtx.strokeStyle = 'lightgrey';
@@ -393,6 +379,22 @@ function draw() {
         gameCtx.lineTo(x2, y);
         gameCtx.stroke();
     }
+
+    if (previewObject && mouseState.isDown) {
+        gameCtx.fillStyle = 'lightgreen';
+        previewObject.draw(gameCtx);
+    }
+    // draw all objects
+    objects.forEach(obj => {
+        if (obj.type === 'x') {
+            gameCtx.fillStyle = 'limegreen';
+            gameCtx.strokeStyle = 'limegreen';
+        } else {
+            gameCtx.strokeStyle = 'red';
+            gameCtx.fillStyle = 'red';
+        }
+        obj.draw(gameCtx);
+    });
 
     if (gameState.isEditMode && selectedObject) {
         gameCtx.fillStyle = 'blue';
