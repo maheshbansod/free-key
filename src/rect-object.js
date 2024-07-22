@@ -119,19 +119,24 @@ export class RectObject {
 
     /**
      * Divides everything by width
+     * @param {Record<string, typeof RectObject>} labelToClassMap
      */
-    minified() {
+    minified(labelToClassMap) {
         const d = this.WIDTH;
 
         const x = this.x / d;
         const y = this.y / d;
         const length = this.length / d;
 
+        const label = /** @type {string} */ (Object.keys(labelToClassMap).find(key => {
+            return labelToClassMap[key] === this.constructor
+        }));
+
         /**
          * @type {MinifiedRect}
          */
         const minified = {
-            c: this.constructor.name,
+            c: label,
             x,
             y,
             l: length,
@@ -153,12 +158,12 @@ export class RectObject {
     /**
      * 
      * @param {MinifiedRect} minified 
-     * @param {(Record<string, typeof RectObject>)} derivedClasses
+     * @param {(Record<string, typeof RectObject>)} labelToClassMap
      */
-    static fromMinified(minified, derivedClasses) {
+    static fromMinified(minified, labelToClassMap) {
         const d = gameConsts.blockSize;
 
-        const cons = derivedClasses[minified.c];
+        const cons = labelToClassMap[minified.c];
         /** @type {RectObject} */
         const instance = new cons(minified.x, minified.y, minified.l, minified.t);
         instance.x = minified.x * d;

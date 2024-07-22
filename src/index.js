@@ -5,6 +5,7 @@ import { Key } from "./key";
 import { RectObject } from "./rect-object";
 import { copyTextToClipboard } from "./utils";
 import { gameConsts } from "./consts";
+import { labelToClassMap } from "./label-to-class-map";
 /** @import {MinifiedRect, RectType} from "./rect-object" */
 
 const gameCanvas = /** @type {HTMLCanvasElement} */(document.getElementById('game'));
@@ -86,10 +87,6 @@ let key = new Key(0, height/2 - 1);
 /** @type {RectObject[]} */
 let objects = [key];
 
-const derivedClasses = {
-    RectObject, Key, Candle
-};
-
 tryLoadFromUrl();
 
 function tryLoadFromUrl() {
@@ -122,7 +119,7 @@ function loadGame(b64) {
     const loadedObjects = [];
 
     for (const obj of data.objs) {
-        const object = RectObject.fromMinified(obj, derivedClasses);
+        const object = RectObject.fromMinified(obj, labelToClassMap);
         loadedObjects.push(object);
     }
 
@@ -474,7 +471,7 @@ function switchToEditor() {
 
 function serializeGame() {
 
-    const minified = objects.map(obj => obj.minified());
+    const minified = objects.map(obj => obj.minified(labelToClassMap));
 
     /**
      * @type {SerializedGameState}
@@ -500,13 +497,13 @@ function playCurrentMap() {
 }
 
 const games = [
-    "eyJvYmpzIjpbeyJjIjoiS2V5IiwieCI6MCwieSI6MiwibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4IjowLCJ5IjowLCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjEsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiQ2FuZGxlIiwieCI6MiwieSI6MSwibCI6MiwidCI6InkifSx7ImMiOiJDYW5kbGUiLCJ4IjozLCJ5IjoxLCJsIjoyLCJ0IjoieCJ9LHsiYyI6IkNhbmRsZSIsIngiOjQsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiQ2FuZGxlIiwieCI6MSwieSI6MywibCI6MywidCI6InkifSx7ImMiOiJDYW5kbGUiLCJ4IjozLCJ5IjoyLCJsIjozLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjIsInkiOjUsImwiOjIsInQiOiJ4In0seyJjIjoiQ2FuZGxlIiwieCI6NCwieSI6MywibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4Ijo0LCJ5Ijo0LCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjUsInkiOjEsImwiOjIsInQiOiJ5In1dfQ%253D%253D",
-"eyJvYmpzIjpbeyJjIjoiS2V5IiwieCI6MiwieSI6MiwibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4IjoxLCJ5IjowLCJsIjozLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjAsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MywieSI6MCwibCI6MiwidCI6InkifSx7ImMiOiJDYW5kbGUiLCJ4Ijo0LCJ5IjowLCJsIjoyLCJ0IjoieCJ9LHsiYyI6IkNhbmRsZSIsIngiOjQsInkiOjEsImwiOjMsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MywieSI6NCwibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4Ijo1LCJ5Ijo0LCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjIsInkiOjMsImwiOjIsInQiOiJ5In0seyJjIjoiQ2FuZGxlIiwieCI6MCwieSI6MywibCI6MiwidCI6IngifSx7ImMiOiJDYW5kbGUiLCJ4IjowLCJ5Ijo0LCJsIjoyLCJ0IjoieSJ9LHsiYyI6IkNhbmRsZSIsIngiOjEsInkiOjUsImwiOjIsInQiOiJ4In1dfQ%253D%253D",
+    "eyJvYmpzIjpbeyJjIjoiayIsIngiOjAsInkiOjIsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjAsInkiOjAsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjEsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjIsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjEsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjEsInkiOjMsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjIsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjIsInkiOjUsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjMsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjUsInkiOjEsImwiOjIsInQiOiJ5In1dfQ%3D%3D",
+"eyJvYmpzIjpbeyJjIjoiayIsIngiOjIsInkiOjIsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjEsInkiOjAsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjAsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjAsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjQsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjEsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjQsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjUsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjIsInkiOjMsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjAsInkiOjMsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjAsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjEsInkiOjUsImwiOjIsInQiOiJ4In1dfQ%3D%3D",
 ]
 
 function playTodaysGame() {
     if (!isGameLoaded) {
-        const queryParam = decodeURIComponent(games[1]);
+        const queryParam = decodeURIComponent(games[0]);
 
         
         const url = new URL(window.location.href);
