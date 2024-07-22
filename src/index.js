@@ -1,7 +1,7 @@
 // @ts-check
 
-import { Candle } from "./candle-v2";
-import { Key } from "./key-v2";
+import { Candle } from "./candle";
+import { Key } from "./key";
 import { RectObject } from "./rect-object";
 import { copyTextToClipboard } from "./utils";
 import { gameConsts } from "./consts";
@@ -580,5 +580,8 @@ exposeToWindow({
     playTodaysGame,
     rotateSelectedObject,
     changeCandleSize,
-    deleteSelectedObject
+    deleteSelectedObject,
+    switchToEditor,
+    clearReset,
+    togglePlayEdit
 })
