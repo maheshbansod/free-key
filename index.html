@@ -1,90 +1,17 @@
+<!doctype html>
+<html lang="en">
+
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            height: 100%;
-            background-color: black;
-            color: white;
-        }
-
-        #game {
-            border: 10px solid grey;
-            height: 100%;
-            width: 100%;
-            touch-action: none;
-            ;
-        }
-
-        .container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #main-menu {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-        }
-
-        #menu-items {
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 50px;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px double white;
-            padding: 1rem;
-        }
-
-        button {
-            padding: 0.25rem 0.5rem;
-            background-color: black;
-            border: 2px solid white;
-            border-radius: 4px;
-            color: white;
-        }
-
-        #menu-items button {
-            padding: 0.5rem 2rem;
-            text-transform: full-width;
-            font-weight: bold;
-        }
-
-        #tools {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem;
-            width: 100%;
-        }
-
-        #current-state {
-            font-family: mono, FreeMono Bold, monospace;
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+    <link rel="stylesheet" href="./style.css" />
 </head>
+<title>Free the key</title>
 
 <body>
+
     <div class="container">
         <div id="tools">
             <span id="current-state">Free the key!</span>
@@ -116,3 +43,5 @@
     <script src="./key-v2.js"></script>
     <script src="./index-v3.js"></script>
 </body>
+
+</html>
