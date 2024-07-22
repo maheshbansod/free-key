@@ -366,9 +366,9 @@ function draw() {
     // draw all objects
     objects.forEach(obj => {
         if (obj.type === 'x') {
-            gameCtx.fillStyle = 'red';
+            gameCtx.fillStyle = 'limegreen';
         } else {
-            gameCtx.fillStyle = 'blue';
+            gameCtx.fillStyle = 'red';
         }
         obj.draw(gameCtx);
     });
