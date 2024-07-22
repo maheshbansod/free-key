@@ -26,7 +26,7 @@ function fallbackCopyTextToClipboard(text) {
  * @param {string} text 
  * @returns 
  */
-function copyTextToClipboard(text) {
+export function copyTextToClipboard(text) {
     if (!navigator.clipboard) {
         fallbackCopyTextToClipboard(text);
         return;

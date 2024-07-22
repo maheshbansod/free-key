@@ -1,5 +1,7 @@
 //@ts-check
 
+import { gameConsts } from "./consts";
+
 /**
  * @typedef {'x'|'y'} RectType
  * 
@@ -13,9 +15,9 @@
  * }} MinifiedRect
  */
 
-class RectObject {
+export class RectObject {
 
-    WIDTH = blockSize;
+    WIDTH = gameConsts.blockSize;
     /**
      * 
      * @param {number} x 
@@ -154,7 +156,7 @@ class RectObject {
      * @param {(Record<string, typeof RectObject>)} derivedClasses
      */
     static fromMinified(minified, derivedClasses) {
-        const d = blockSize;
+        const d = gameConsts.blockSize;
 
         const cons = derivedClasses[minified.c];
         /** @type {RectObject} */

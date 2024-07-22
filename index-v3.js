@@ -1,5 +1,12 @@
 // @ts-check
 
+import { Candle } from "./candle-v2";
+import { Key } from "./key-v2";
+import { RectObject } from "./rect-object";
+import { copyTextToClipboard } from "./utils";
+import { gameConsts } from "./consts";
+/** @import {MinifiedRect, RectType} from "./rect-object" */
+
 const gameCanvas = /** @type {HTMLCanvasElement} */(document.getElementById('game'));
 const gameCtx = /** @type {CanvasRenderingContext2D} */(gameCanvas.getContext('2d'));
 
@@ -72,7 +79,7 @@ const grid = {
     w: 6,
     h: 6,
 };
-const blockSize = canvasSize / grid.w;
+gameConsts.blockSize = canvasSize / grid.w;
 
 let key = new Key(0, height/2 - 1);
 
@@ -159,7 +166,7 @@ function selectObject(object) {
     onSelectionEnabledElements.forEach(elem => {
         elem.classList.remove('hidden');
     });
-    candleSizeInput.value = String(Math.floor(selectedObject.length / blockSize));
+    candleSizeInput.value = String(Math.floor(selectedObject.length / gameConsts.blockSize));
 }
 
 function rotateSelectedObject() {
@@ -171,7 +178,7 @@ function rotateSelectedObject() {
 function changeCandleSize() {
     if (selectedObject) {
         // candle selected
-        selectedObject.length = (Number(candleSizeInput.value) || 1) * blockSize;
+        selectedObject.length = (Number(candleSizeInput.value) || 1) * gameConsts.blockSize;
     }
 }
 
@@ -185,6 +192,32 @@ function deleteSelectedObject() {
     }
 }
 
+
+/**
+ * 
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} len
+ * @param {Candle[]} candles
+ * @param {Key} key
+ */
+function findPossibleCandleAt(x, y, len, candles, key) {
+    const laneX = Math.floor(x / gameConsts.blockSize);
+    const laneY = Math.floor(y / gameConsts.blockSize);
+
+    x = laneX * gameConsts.blockSize;
+    y = laneY * gameConsts.blockSize;
+
+    const candle1 = new Candle(x, y, len, 'x');
+    if (candle1.intersectsWith(key)
+    || candle1.intersectsWithRect(width - gameConsts.blockSize, key.y, gameConsts.blockSize, gameConsts.blockSize)) {
+        return;
+    }
+    if (!candles.some(candle => candle.intersectsWith(candle1))) {
+        return candle1;
+    }
+}
+
 /**
  * 
  * @param {{x: number, y: number}} position
@@ -192,7 +225,7 @@ function deleteSelectedObject() {
  */
 function getGridPosition(position, resetType=null) {
     const {x, y} = position;
-    const normalize = (x) => Math.floor(x/blockSize) * blockSize;
+    const normalize = (x) => Math.floor(x/gameConsts.blockSize) * gameConsts.blockSize;
     if (!resetType) {
         return {
             x: normalize(x),
@@ -245,7 +278,7 @@ function registerEditEventHandlers() {
                 return;
             }
             // make new candle
-            const newCandle = findPossibleCandleAt(x, y, blockSize, candles(), key);
+            const newCandle = findPossibleCandleAt(x, y, gameConsts.blockSize, candles(), key);
             if (!newCandle) {
                 throw new Error('no place to make a candle');
             }
@@ -281,8 +314,8 @@ function registerEditEventHandlers() {
             } else {
                 // play mode
                 const {x, y} = getGridPosition({
-                    x: selectedObject.x + blockSize / 2,
-                    y: selectedObject.y + blockSize / 2
+                    x: selectedObject.x + gameConsts.blockSize / 2,
+                    y: selectedObject.y + gameConsts.blockSize / 2
                 });
                 selectedObject.x = x;
                 selectedObject.y = y;
@@ -332,12 +365,12 @@ function registerEditEventHandlers() {
                 const previewPreviewObject = new Candle(spx, spy, selectedObject.length, selectedObject.type);
                 if (!objects.filter(obj => obj !== selectedObject).some(obj => {
                     if (selectedObject instanceof Key) {
-                        if (obj.intersectsWithRect(width - blockSize, key.y, blockSize, blockSize)) {
+                        if (obj.intersectsWithRect(width - gameConsts.blockSize, key.y, gameConsts.blockSize, gameConsts.blockSize)) {
                             return true;
                         }
                     }
                     return obj.intersectsWith(previewPreviewObject);
-                }) && !previewPreviewObject.intersectsWithRect(width - blockSize, key.y, blockSize, blockSize)) {
+                }) && !previewPreviewObject.intersectsWithRect(width - gameConsts.blockSize, key.y, gameConsts.blockSize, gameConsts.blockSize)) {
                     if (!previewObject) {
                         previewObject = previewPreviewObject;
                     }
@@ -362,7 +395,7 @@ function draw() {
     // draw grid
     gameCtx.strokeStyle = 'lightgrey';
     for (let i = 1; i < grid.w ; i ++) {
-        const x = i * blockSize;
+        const x = i * gameConsts.blockSize;
         const y1 = 0;
         const y2 = height;
         gameCtx.beginPath();
@@ -371,7 +404,7 @@ function draw() {
         gameCtx.stroke();
     }
     for (let i = 1; i < grid.h ; i ++) {
-        const y = i * blockSize;
+        const y = i * gameConsts.blockSize;
         const x1 = 0;
         const x2 = height;
         gameCtx.beginPath();
@@ -411,7 +444,7 @@ function draw() {
     gameCtx.font = `${fontSize}px Arial`;
     gameCtx.textBaseline = 'middle';
     const textSize = gameCtx.measureText(text);
-    gameCtx.fillText("WIN", width - (blockSize + textSize.width) / 2, key.y + (fontSize + blockSize) / 2);
+    gameCtx.fillText("WIN", width - (gameConsts.blockSize + textSize.width) / 2, key.y + (fontSize + gameConsts.blockSize) / 2);
     gameCtx.fill();
 
     requestAnimationFrame(draw);
@@ -532,3 +565,20 @@ by moving around the walls where the key and walls can only move in specific dir
 It's created with pure JS by <a href="https://github.com/maheshbansod">Light</a> a.k.a. <a href="https://maheshbansod.com">Mahesh Bansod</a>.<br/>
 Source code for this is probably available on github. <br />
 `
+
+/**
+ * 
+ * @param {Record<string, unknown>} obj 
+ */
+function exposeToWindow(obj) {
+    Object.keys(obj).forEach(key => window[key] = obj[key]);
+}
+
+exposeToWindow({
+    aboutTheGame,
+    copyGameLink,
+    playTodaysGame,
+    rotateSelectedObject,
+    changeCandleSize,
+    deleteSelectedObject
+})
