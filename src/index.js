@@ -15,6 +15,8 @@ const rotateBtn = /** @type {HTMLButtonElement} */ (document.getElementById('rot
 const deleteBtn = /** @type {HTMLButtonElement} */ (document.getElementById('delete-btn'));
 const candleSizeInput = /** @type {HTMLInputElement} */ (document.getElementById('candle-size-input'));
 
+const mainPlayButton = /** @type {HTMLButtonElement} */ (document.getElementById('main-play-button'));
+
 // const mapSizeWidthInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-w'));
 // const mapSizeHeightInput = /** @type {HTMLInputElement} */(document.getElementById('map-size-h'));
 
@@ -22,6 +24,8 @@ const editToolsContainer = /** @type {HTMLDivElement} */ (document.getElementByI
 const commonToolsContainer = /** @type {HTMLDivElement} */ (document.getElementById('common-tools-container'));
 const toolsWrapper = /** @type {HTMLDivElement} */ (document.getElementById('tools'));
 const mainMenu = /** @type {HTMLDivElement} */ (document.getElementById("main-menu"));
+const mainMenuItems = /** @type {HTMLDivElement} */ (document.getElementById('main-menu-items'));
+const viewAllItems = /** @type {HTMLDivElement} */ (document.getElementById('view-all-items'));
 const currentState = /** @type {HTMLSpanElement} */ (document.getElementById('current-state'));
 
 let isGameLoaded = false;
@@ -97,6 +101,7 @@ function tryLoadFromUrl() {
             console.log('loading')
             console.log(gameData);
             loadGame(decodeURIComponent(gameData));
+            mainPlayButton.innerText = "Start game"
         } catch(e) {
             console.error('Attempted to load game from URL but failed.');
             console.error(e);
@@ -501,21 +506,63 @@ const games = [
     "eyJvYmpzIjpbeyJjIjoiayIsIngiOjIsInkiOjIsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjAsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjMsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjIsInkiOjAsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjAsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjEsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjQsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjUsInkiOjEsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjMsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjQsInkiOjQsImwiOjIsInQiOiJ4In1dfQ%3D%3D",
     "eyJvYmpzIjpbeyJjIjoiayIsIngiOjAsInkiOjIsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjAsInkiOjAsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjEsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjIsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjEsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjEsInkiOjMsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjIsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjIsInkiOjUsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjMsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjUsInkiOjEsImwiOjIsInQiOiJ5In1dfQ%3D%3D",
 "eyJvYmpzIjpbeyJjIjoiayIsIngiOjIsInkiOjIsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjEsInkiOjAsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjAsInkiOjEsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjAsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjQsInkiOjAsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjQsInkiOjEsImwiOjMsInQiOiJ5In0seyJjIjoiYyIsIngiOjMsInkiOjQsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjUsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjIsInkiOjMsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjAsInkiOjMsImwiOjIsInQiOiJ4In0seyJjIjoiYyIsIngiOjAsInkiOjQsImwiOjIsInQiOiJ5In0seyJjIjoiYyIsIngiOjEsInkiOjUsImwiOjIsInQiOiJ4In1dfQ%3D%3D",
-]
+];
 
 function playTodaysGame() {
     if (!isGameLoaded) {
-        const queryParam = decodeURIComponent(games[0]);
-
-        
-        const url = new URL(window.location.href);
-        url.searchParams.set("g", queryParam);
-        history.pushState(null, '', url);
-
-        tryLoadFromUrl();
+        loadFromB64AndNavigate(games[0]);
     }
     playCurrentMap();
 }
+
+/**
+ * 
+ * @param {string} b64 
+ */
+function loadFromB64AndNavigate(b64) {
+    const queryParam = decodeURIComponent(b64);
+
+        
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", queryParam);
+    history.pushState(null, '', url);
+
+    tryLoadFromUrl();
+}
+
+function playRandomGame() {
+    const randomIdx = Math.floor(Math.random() * games.length);
+    const game = games[randomIdx];
+    loadFromB64AndNavigate(game);
+    playCurrentMap();
+}
+
+function viewAll() {
+    mainMenuItems.classList.add('hidden');
+    viewAllItems.classList.remove('hidden');
+}
+
+function initViewAll() {
+    const backButton = document.createElement('button');
+    backButton.addEventListener('click', () => {
+        mainMenuItems.classList.remove('hidden');
+        viewAllItems.classList.add('hidden');
+    });
+    backButton.innerText = 'Back to menu';
+    const buttons = [backButton];
+    games.slice().reverse().forEach((game, i) => {
+        const gameBtn = document.createElement('button');
+        gameBtn.addEventListener('click', () => {
+            loadFromB64AndNavigate(game);
+            playCurrentMap();
+        });
+        gameBtn.innerText = `Preset ${i + 1}`;
+        buttons.push(gameBtn);
+    });
+    buttons.forEach(button => viewAllItems.appendChild(button));
+}
+
+initViewAll();
 
 function startPlayMode() {
     gameState.mode = 'play';
@@ -562,7 +609,7 @@ by moving around the walls where the key and walls can only move in specific dir
 
 <h5>Credits</h5>
 It's created with pure JS by <a href="https://github.com/maheshbansod">Light</a> a.k.a. <a href="https://maheshbansod.com">Mahesh Bansod</a>.<br/>
-Source code for this is probably available on github. <br />
+Source code for this is probably available on <a href="https://github.com/maheshbansod">my github</a>. <br />
 `
 
 /**
@@ -577,6 +624,8 @@ exposeToWindow({
     aboutTheGame,
     copyGameLink,
     playTodaysGame,
+    playRandomGame,
+    viewAll,
     rotateSelectedObject,
     changeCandleSize,
     deleteSelectedObject,

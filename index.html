@@ -27,10 +27,14 @@
             </div>
         </div>
         <div id="main-menu">
-            <div id="menu-items">
-                <button type="button" onclick="playTodaysGame()">Play</button>
+            <div id="main-menu-items" class="menu-items">
+                <button type="button" id="main-play-button" onclick="playTodaysGame()">Play latest</button>
+                <button type="button" onclick="playRandomGame()">Play random</button>
+                <button type="button" onclick="viewAll()">All maps</button>
                 <button type="button" onclick="switchToEditor()">Editor</button>
                 <button type="button" onclick="document.write(aboutTheGame)">About</button>
+            </div>
+            <div id="view-all-items" class="menu-items hidden">
             </div>
         </div>
         <hr />

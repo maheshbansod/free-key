@@ -42,7 +42,7 @@ body {
   display: flex;
 }
 
-#menu-items {
+.menu-items {
   margin: auto;
   display: flex;
   flex-direction: column;
@@ -62,7 +62,7 @@ button {
   color: white;
 }
 
-#menu-items button {
+.menu-items button {
   padding: 0.5rem 2rem;
   text-transform: full-width;
   font-weight: bold;
