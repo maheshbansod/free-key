@@ -211,8 +211,7 @@ function findPossibleCandleAt(x, y, len, candles, key) {
     y = laneY * gameConsts.blockSize;
 
     const candle1 = new Candle(x, y, len, 'x');
-    if (candle1.intersectsWith(key)
-    || candle1.intersectsWithRect(width - gameConsts.blockSize, key.y, gameConsts.blockSize, gameConsts.blockSize)) {
+    if (candle1.intersectsWith(key)) {
         return;
     }
     if (!candles.some(candle => candle.intersectsWith(candle1))) {
@@ -372,7 +371,7 @@ function registerEditEventHandlers() {
                         }
                     }
                     return obj.intersectsWith(previewPreviewObject);
-                }) && !previewPreviewObject.intersectsWithRect(width - gameConsts.blockSize, key.y, gameConsts.blockSize, gameConsts.blockSize)) {
+                })) {
                     if (!previewObject) {
                         previewObject = previewPreviewObject;
                     }
