@@ -78,3 +78,9 @@ button {
 #current-state {
   font-family: mono, FreeMono Bold, monospace;
 }
+
+#view-all-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: calc(100% - 1.5rem);
+}
