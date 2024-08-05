@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://maheshbansod.github.io/free-key/assets/favicon/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free the key</title>
+  <script type="module" crossorigin src="https://maheshbansod.github.io/free-key/assets/index-CKn0WeaJ.js"></script>
+  <link rel="stylesheet" crossorigin href="https://maheshbansod.github.io/free-key/assets/index-B2PmN09a.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div id="tools">
+            <span id="current-state">Free the key!</span>
+            <div id="edit-tools-container" class="hidden">
+                <button type="button" class="hidden" id="delete-btn" onclick="deleteSelectedObject()">Delete</button>
+                <button type="button" class="hidden" id="rotate-btn" onclick="rotateSelectedObject()">Rotate</button>
+                <input type="number" class="hidden" id="candle-size-input" onchange="changeCandleSize()" min="1"
+                    max="10" step="1" />
+            </div>
+            <div id="common-tools-container" class="hidden">
+                <button type="button" onclick="copyGameLink()">Copy game link</button>
+                <button type="button" onclick="togglePlayEdit()">toggle play / edit</button>
+                <button type="button" onclick="clearReset()">Reset / clear</button>
+            </div>
+        </div>
+        <div id="main-menu">
+            <div id="main-menu-items" class="menu-items">
+                <button type="button" id="main-play-button" onclick="playTodaysGame()">Play latest</button>
+                <button type="button" onclick="playRandomGame()">Play random</button>
+                <button type="button" onclick="viewAll()">All maps</button>
+                <button type="button" onclick="switchToEditor()">Editor</button>
+                <button type="button" onclick="document.write(aboutTheGame)">About</button>
+            </div>
+            <div id="view-all-items" class="menu-items hidden">
+            </div>
+        </div>
+        <hr />
+        <canvas id="game"></canvas>
+    </div>
+    <!-- <script src="./utils.js"></script>
+    <script src="./rect-object.js"></script>
+    <script src="./candle-v2.js"></script>
+    <script src="./key-v2.js"></script> -->
+</body>
+
+</html>
